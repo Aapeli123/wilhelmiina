@@ -138,8 +138,19 @@ func AddSeason(name string, start int64, end int64) (Season, error) {
 	return season, nil
 }
 
-func getSeasons() {
-	// TODO get all seasons
+func getSeasons() ([]Season, error) {
+	collection := database.DbClient.Database("test").Collection("seasons")
+	cur, err := collection.Find(context.TODO(), bson.D{{}})
+	if err != nil {
+		return nil, err
+	}
+	seasons := []Season{}
+	for cur.Next(context.TODO()) {
+		var elem Season
+		cur.Decode(&elem)
+		seasons = append(seasons, elem)
+	}
+	return seasons, nil
 }
 
 // GetSeason gets a season from the database

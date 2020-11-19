@@ -10,13 +10,13 @@ I'm trying to write this as really stable, also the finished product should offe
 This also should have an open REST API for those who are interested in programming optional applications and helper tools
 
 ## Connecting MongoDB database
-In your MongoDB cluster you should find a connection string of the form
-`mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority`
-Store the required information in the <fields> in environment variables in the same order
-`WILHELMIINA_SERVER_USERNAME      = <username>`
-`WILHELMIINA_SERVER_PASSWORD      = <password>`
-`WILHELMIINA_SERVER_CLUSTER_NAME  = <cluster>`
-`WILHELMIINA_SERVER_DATABASE_NAME = <dbname>`
+In your MongoDB cluster you should find a connection string of the form\
+`mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority`\
+Store the required information in the <fields> in environment variables in the same order\
+1. `WILHELMIINA_SERVER_USERNAME      = <username>`
+2. `WILHELMIINA_SERVER_PASSWORD      = <password>`
+3. `WILHELMIINA_SERVER_CLUSTER_NAME  = <cluster>`
+4. `WILHELMIINA_SERVER_DATABASE_NAME = <dbname>`
 
 ## Running
 1. Download golang

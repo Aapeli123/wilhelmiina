@@ -31,6 +31,16 @@ type Group struct {
 	GroupID  string
 }
 
+// AddStudent adds a new user to the group and saves change to database
+func (g *Group) AddStudent(user user.User) {
+	g.Students = append(g.Students, user)
+	filter := bson.M{
+		"groupid": g.GroupID,
+	}
+	collection := database.DbClient.Database("test").Collection("groups")
+	collection.FindOneAndReplace(context.TODO(), filter, *g)
+}
+
 // AddGroup creates a new group and saves it to database
 func AddGroup(c Course, teacher user.User, position int8) (Group, error) {
 	prevGroups, err := GetGroupsForCourse(c.CourseID)

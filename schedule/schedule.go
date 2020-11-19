@@ -19,7 +19,7 @@ type Season struct {
 
 // Schedule represents some users schedule
 type Schedule struct {
-	Groups     []Group
+	Groups     []string
 	OwnerID    string
 	Season     string
 	ScheduleID string
@@ -29,7 +29,7 @@ type Schedule struct {
 func AddSchedule(ownerID string, seasonID string) (Schedule, error) {
 	schedule := Schedule{
 		OwnerID:    ownerID,
-		Groups:     []Group{},
+		Groups:     []string{},
 		Season:     seasonID,
 		ScheduleID: uuid.New().String(),
 	}
@@ -48,9 +48,19 @@ func AddSchedule(ownerID string, seasonID string) (Schedule, error) {
 	return schedule, nil
 }
 
-// AddCourseToSchedule adds a new course to the schedule specified
-func AddCourseToSchedule(owner string, season int, course Course) error {
-	// TODO Add course to schedule
+// AddGroup adds a new course to the schedule specified and saves the change to database
+func (s *Schedule) AddGroup(owner string, season int, groupID string) error {
+	for _, group := range s.Groups {
+		if group == groupID {
+			return ErrAlreadyInGroup
+		}
+	}
+	s.Groups = append(s.Groups, groupID)
+	collection := database.DbClient.Database("test").Collection("schedules")
+	filter := bson.M{
+		"scheduleid": s.ScheduleID,
+	}
+	collection.FindOneAndReplace(context.TODO(), filter, *s)
 	return nil
 }
 

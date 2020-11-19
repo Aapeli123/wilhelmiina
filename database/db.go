@@ -10,15 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const password = os.Getenv("WILHELMIINA_SERVER_PASSWORD")
-const connStr = fmt.Sprintf("mongodb+srv://admin:%s@wilhelmiinatest.8tutg.mongodb.net/wilhelmiinatest?retryWrites=true&w=majority", password)
-
 // DbClient should be used for database operations
 var DbClient *mongo.Client
 
 // Init sets DbClient to the mongo client and tests connection.
 // Panics on connection error, as the app would unusable
 func Init() {
+	connStr := fmt.Sprintf("mongodb+srv://admin:%s@wilhelmiinatest.8tutg.mongodb.net/wilhelmiinatest?retryWrites=true&w=majority", os.Getenv("WILHELMIINA_SERVER_PASSWORD"))
 	client, err := mongo.NewClient(options.Client().ApplyURI(connStr))
 	if err != nil {
 		panic(err)

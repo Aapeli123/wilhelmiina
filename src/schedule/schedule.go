@@ -120,6 +120,15 @@ func GetSchedule(scheduleID string) (Schedule, error) {
 	return schedule, nil
 }
 
+// DeleteSchedule removes schedule
+func DeleteSchedule(scheduleID string) {
+	collection := database.DbClient.Database("test").Collection("schedules")
+	filter := bson.M{
+		"scheduleid": scheduleID,
+	}
+	collection.FindOneAndDelete(context.TODO(), filter)
+}
+
 // AddSeason adds season to database and returns it
 func AddSeason(name string, start int64, end int64) (Season, error) {
 	seasonID := uuid.New().String()
@@ -154,7 +163,7 @@ func getSeasons() ([]Season, error) {
 }
 
 // GetSeason gets a season from the database
-func GetSeason(ID int) (Season, error) {
+func GetSeason(ID string) (Season, error) {
 	var season Season
 	filter := bson.M{
 		"id": ID,
@@ -164,4 +173,13 @@ func GetSeason(ID int) (Season, error) {
 		return Season{}, err
 	}
 	return season, nil
+}
+
+// DeleteSeason removes season from database
+func DeleteSeason(ID string) {
+	collection := database.DbClient.Database("test").Collection("schedules")
+	filter := bson.M{
+		"id": ID,
+	}
+	collection.FindOneAndDelete(context.TODO(), filter)
 }

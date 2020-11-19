@@ -148,6 +148,15 @@ func LoadCourses() ([]Course, error) {
 	return courses, nil
 }
 
+// DeleteCourse removes a course from database
+func DeleteCourse(courseID string) {
+	collection := database.DbClient.Database("test").Collection("groups")
+	filter := bson.M{
+		"courseid": courseID,
+	}
+	collection.FindOneAndDelete(context.TODO(), filter)
+}
+
 func doesCourseExist(shortName string) (bool, error) {
 	_, err := GetCourse(shortName)
 	if err == nil {

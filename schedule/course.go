@@ -84,6 +84,19 @@ func GetGroupsForCourse(CourseID string) ([]Group, error) {
 	return groups, nil
 }
 
+// GetGroup gets group based on group id
+func GetGroup(groupID string) (Group, error) {
+	filter := bson.M{
+		"groupid": groupID,
+	}
+	var group Group
+	err := database.DbClient.Database("test").Collection("groups").FindOne(context.TODO(), filter).Decode(&group)
+	if err != nil {
+		return Group{}, nil
+	}
+	return group, nil
+}
+
 // AddCourse adds a new course and saves it to the database
 func AddCourse(name string, desc string, number int, subject Subject) (Course, error) {
 	course := Course{

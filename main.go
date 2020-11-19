@@ -9,6 +9,7 @@ import (
 func main() {
 	database.Init()
 	subjects, _ := schedule.LoadSubjects()
+
 	fmt.Println(subjects)
 	database.Close() // Close database connection
 }

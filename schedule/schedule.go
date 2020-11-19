@@ -17,6 +17,9 @@ type Season struct {
 	ID    string
 }
 
+// Year represents a full school year, basically a list of season id:s
+type Year []string
+
 // Schedule represents some users schedule
 type Schedule struct {
 	Groups     []string
@@ -49,7 +52,7 @@ func AddSchedule(ownerID string, seasonID string) (Schedule, error) {
 }
 
 // AddGroup adds a new course to the schedule specified and saves the change to database
-func (s *Schedule) AddGroup(owner string, season int, groupID string) error {
+func (s *Schedule) AddGroup(groupID string) error {
 	for _, group := range s.Groups {
 		if group == groupID {
 			return ErrAlreadyInGroup
@@ -60,8 +63,26 @@ func (s *Schedule) AddGroup(owner string, season int, groupID string) error {
 	filter := bson.M{
 		"scheduleid": s.ScheduleID,
 	}
+	group, err := GetGroup(groupID)
+	if err != nil {
+		return err
+	}
+	owner, err := user.GetUser(s.OwnerID)
+	if err != nil {
+		return err
+	}
 	collection.FindOneAndReplace(context.TODO(), filter, *s)
+	group.AddStudent(owner)
 	return nil
+}
+
+// DeleteGroup a group from database
+func DeleteGroup(groupID string) {
+	collection := database.DbClient.Database("test").Collection("groups")
+	filter := bson.M{
+		"groupid": groupID,
+	}
+	collection.FindOneAndDelete(context.TODO(), filter)
 }
 
 // GetScheduleForUser gets the schedule of an user in specific season
@@ -124,6 +145,15 @@ func getSeasons() {
 	// TODO get all seasons
 }
 
-func getSeasonWithIndex(index int) {
-	// TODO get specific season
+// GetSeason gets a season from the database
+func GetSeason(ID int) (Season, error) {
+	var season Season
+	filter := bson.M{
+		"id": ID,
+	}
+	err := database.DbClient.Database("test").Collection("schedules").FindOne(context.TODO(), filter).Decode(&season)
+	if err != nil {
+		return Season{}, err
+	}
+	return season, nil
 }

@@ -17,9 +17,6 @@ type Season struct {
 	ID    string
 }
 
-// Year represents a full school year, basically a list of season id:s
-type Year []string
-
 // Schedule represents some users schedule
 type Schedule struct {
 	Groups     []string

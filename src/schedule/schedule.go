@@ -168,7 +168,7 @@ func GetSeason(ID string) (Season, error) {
 	filter := bson.M{
 		"id": ID,
 	}
-	err := database.DbClient.Database("test").Collection("schedules").FindOne(context.TODO(), filter).Decode(&season)
+	err := database.DbClient.Database("test").Collection("seasons").FindOne(context.TODO(), filter).Decode(&season)
 	if err != nil {
 		return Season{}, err
 	}
@@ -177,7 +177,7 @@ func GetSeason(ID string) (Season, error) {
 
 // DeleteSeason removes season from database
 func DeleteSeason(ID string) {
-	collection := database.DbClient.Database("test").Collection("schedules")
+	collection := database.DbClient.Database("test").Collection("seasons")
 	filter := bson.M{
 		"id": ID,
 	}

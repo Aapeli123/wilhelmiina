@@ -120,10 +120,10 @@ func AddCourse(name string, desc string, number int, subject Subject) (Course, e
 }
 
 // GetCourse gets course data from database
-func GetCourse(shortName string) (Course, error) {
+func GetCourse(id string) (Course, error) {
 	collection := database.DbClient.Database("test").Collection("courses")
 	filter := bson.M{
-		"nameshort": shortName,
+		"courseid": id,
 	}
 	var course Course
 	err := collection.FindOne(context.TODO(), filter).Decode(&course)
@@ -150,7 +150,7 @@ func LoadCourses() ([]Course, error) {
 
 // DeleteCourse removes a course from database
 func DeleteCourse(courseID string) {
-	collection := database.DbClient.Database("test").Collection("groups")
+	collection := database.DbClient.Database("test").Collection("course")
 	filter := bson.M{
 		"courseid": courseID,
 	}

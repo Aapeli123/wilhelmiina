@@ -1,6 +1,9 @@
 package user
 
 import (
+	"crypto/subtle"
+	"encoding/base64"
+	"strings"
 	"testing"
 	"wilhelmiina/database"
 )
@@ -71,6 +74,34 @@ func TestUserUpdates(t *testing.T) {
 	}
 	DeleteUser(user.UUID)
 	database.Close()
+}
+
+func TestPasswordHashing(t *testing.T) {
+	hash, err := hashPassword("password1", &passwordConfig)
+	if err != nil {
+		t.Error(err)
+	}
+	hash2, err := hashPassword("password1", &passwordConfig)
+	if err != nil {
+		t.Error(err)
+	}
+	if hash == hash2 {
+		t.Error("PASSWORD HASHING DOES NOT WORK CORRECTLY. TWO SAME PASSWORDS HAD THE SAME HASH")
+	}
+	parts := strings.Split(hash, "$")
+	parts2 := strings.Split(hash2, "$")
+	salt, err := base64.RawStdEncoding.DecodeString(parts[4])
+	if err != nil {
+		t.Error(err)
+	}
+	salt2, err := base64.RawStdEncoding.DecodeString(parts2[4])
+	if err != nil {
+		t.Error(err)
+	}
+	if subtle.ConstantTimeCompare(salt, salt2) == 1 {
+		t.Error("ERROR WITH PASSWORD HASHING, SALTS OF TWO HASHES ARE THE SAME")
+	}
+
 }
 
 func TestGetUserByName(t *testing.T) {

@@ -32,6 +32,15 @@ func AddSubject(name string, desc string) (Subject, error) {
 	return Subject{}, ErrDocExistsAlready
 }
 
+// DeleteSubject removes a subject from database
+func DeleteSubject(name string) {
+	collection := database.DbClient.Database("test").Collection("subjects")
+	filter := bson.M{
+		"name": name,
+	}
+	collection.FindOneAndDelete(context.TODO(), filter)
+}
+
 // GetSubject gets data for specific subject in the database
 func GetSubject(name string) (Subject, error) {
 	collection := database.DbClient.Database("test").Collection("subjects")

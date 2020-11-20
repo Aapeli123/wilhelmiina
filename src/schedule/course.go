@@ -150,7 +150,7 @@ func LoadCourses() ([]Course, error) {
 
 // DeleteCourse removes a course from database
 func DeleteCourse(courseID string) {
-	collection := database.DbClient.Database("test").Collection("course")
+	collection := database.DbClient.Database("test").Collection("courses")
 	filter := bson.M{
 		"courseid": courseID,
 	}

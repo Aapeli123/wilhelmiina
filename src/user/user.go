@@ -18,14 +18,15 @@ import (
 
 // User represents an user of the service
 type User struct {
-	Username     string
-	Fullname     string
-	Email        string
-	PasswordHash string
-	UUID         string
-	LastLogin    int64
-	Online       bool
-	ScheduleIDs  []string
+	Username        string
+	Fullname        string
+	Email           string
+	PasswordHash    string
+	UUID            string
+	LastLogin       int64
+	Online          bool
+	ScheduleIDs     []string
+	PermissionLevel int // PermissionLevel tells the program what actions you can perform
 }
 
 // Teacher represents a teacher
@@ -79,19 +80,20 @@ func (u *User) AddSchedule(scheduleID string) {
 
 // CreateUser makes a new user and saves it to database.
 // It returns the user.
-func CreateUser(username string, fullName string, email string, password string) (User, error) {
+func CreateUser(username string, permissionLevel int, fullName string, email string, password string) (User, error) {
 	hashed, err := hashPassword(password, &passwordConfig)
 	if err != nil {
 		return User{}, err
 	}
 	user := User{
-		UUID:         uuid.New().String(),
-		Username:     username,
-		Fullname:     fullName,
-		Email:        email,
-		PasswordHash: hashed,
-		Online:       false,
-		LastLogin:    time.Now().Unix(),
+		UUID:            uuid.New().String(),
+		Username:        username,
+		Fullname:        fullName,
+		Email:           email,
+		PasswordHash:    hashed,
+		Online:          false,
+		LastLogin:       time.Now().Unix(),
+		PermissionLevel: permissionLevel,
 	}
 	collection := database.DbClient.Database("test").Collection("users")
 	_, err = collection.InsertOne(context.TODO(), user)

@@ -9,7 +9,7 @@ import (
 func TestCreateUser(t *testing.T) {
 	database.Init()
 	t.Log("Creating user...")
-	user, err := CreateUser("test", "test mac testface", "test@test.com", "test")
+	user, err := CreateUser("test", 1, "test mac testface", "test@test.com", "test")
 	if err != nil {
 		t.Error(err)
 	}
@@ -25,7 +25,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	database.Init()
 	t.Log("Creating user...")
-	user, _ := CreateUser("test", "test mac testface", "test@test.com", "test")
+	user, _ := CreateUser("test", 1, "test mac testface", "test@test.com", "test")
 	alsoUser, err := GetUser(user.UUID)
 	if err != nil {
 		t.Error(err)
@@ -39,7 +39,7 @@ func TestGetUser(t *testing.T) {
 
 func TestUserDelete(t *testing.T) {
 	database.Init()
-	user, _ := CreateUser("testuser2", "test test", "test@test.com", "test")
+	user, _ := CreateUser("testuser2", 1, "test test", "test@test.com", "test")
 	DeleteUser(user.UUID)
 	r, _ := doesUserExist(user.UUID)
 	if r {
@@ -50,7 +50,7 @@ func TestUserDelete(t *testing.T) {
 
 func TestUserUpdates(t *testing.T) {
 	database.Init()
-	user, _ := CreateUser("testuser3", "test test", "test@test.com", "test")
+	user, _ := CreateUser("testuser3", 1, "test test", "test@test.com", "test")
 	UpdateEmail(user.UUID, "test2@test.com")
 	user, _ = GetUser(user.UUID)
 	if user.Email != "test2@test.com" {
@@ -76,7 +76,7 @@ func TestUserUpdates(t *testing.T) {
 func TestGetUserByName(t *testing.T) {
 	database.Init()
 	t.Log("Creating user...")
-	user, _ := CreateUser("test", "test mac testface", "test@test.com", "test")
+	user, _ := CreateUser("test", 1, "test mac testface", "test@test.com", "test")
 	alsoUser, err := GetUserByName(user.Username)
 	if err != nil {
 		t.Error(err)

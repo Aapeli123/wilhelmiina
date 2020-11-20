@@ -26,7 +26,7 @@ type User struct {
 	LastLogin       int64
 	Online          bool
 	ScheduleIDs     []string
-	PermissionLevel int // PermissionLevel tells the program what actions you can perform
+	PermissionLevel int // PermissionLevel tells the program what actions you can perform, higher number represents more permissions
 }
 
 // Teacher represents a teacher

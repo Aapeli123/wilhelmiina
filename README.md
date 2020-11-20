@@ -24,5 +24,13 @@ Store the required information in the <fields> in environment variables in the s
 3. `cd wilhelmiina/src`
 4. `go run .`
 
+## Testing
+`cd ./src`
+### Test all files:
+`go test ./database ./user ./schedule -count=1`
+
+### For verbose test output:
+`go test ./database ./user ./schedule -count=1 -v`
+
 ## Contributing
 Just add a pull request lol.

@@ -16,7 +16,7 @@ var DbClient *mongo.Client
 // Init sets DbClient to the mongo client and tests connection.
 // Panics on connection error, as the app would unusable
 func Init() {
-	connStr := fmt.Sprintf("mongodb+srv://%s:%s@%s.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("WILHELMIINA_SERVER_USERNAME") ,os.Getenv("WILHELMIINA_SERVER_PASSWORD"), os.Getenv("WILHELMIINA_SERVER_CLUSTER_NAME"), os.Getenv("WILHELMIINA_SERVER_DATABASE_NAME"))
+	connStr := fmt.Sprintf("mongodb+srv://%s:%s@%s.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("WILHELMIINA_SERVER_USERNAME"), os.Getenv("WILHELMIINA_SERVER_PASSWORD"), os.Getenv("WILHELMIINA_SERVER_CLUSTER_NAME"), os.Getenv("WILHELMIINA_SERVER_DATABASE_NAME"))
 	client, err := mongo.NewClient(options.Client().ApplyURI(connStr))
 	if err != nil {
 		panic(err)
@@ -32,11 +32,9 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Database connection succesful")
 }
 
 // Close closes the connection to database
 func Close() {
 	DbClient.Disconnect(context.TODO())
-	fmt.Println("Database connection closed")
 }

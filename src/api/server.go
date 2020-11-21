@@ -25,4 +25,6 @@ func websocketHandle(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	// TODO Do something with connection...
+	conn.Close() // Close the connection
 }

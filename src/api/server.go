@@ -12,6 +12,7 @@ func StartServer(port int) {
 	r := gin.Default()
 
 	r.GET("/ws", websocketHandle)
+	r.GET("/subjects", getSubjectsRoute)
 }
 
 var upgrader = websocket.Upgrader{

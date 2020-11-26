@@ -38,7 +38,7 @@ func getCourseHandler(c *gin.Context) {
 		})
 		return
 	}
-	course, err := schedule.GetCourse(req.Id)
+	course, err := schedule.GetCourse(req.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(404, errRes{
 			Message: "Error : " + err.Error(),
@@ -47,4 +47,16 @@ func getCourseHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(200, course)
+}
+
+func getCoursesHandler(c *gin.Context) {
+	courses, err := schedule.LoadSubjects()
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: "Error loading courses: " + err.Error(),
+			Success: false,
+		})
+		return
+	}
+	c.JSON(200, courses)
 }

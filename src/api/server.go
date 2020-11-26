@@ -8,12 +8,13 @@ import (
 )
 
 // StartServer starts the http server which will serve the api
-func StartServer(port int) {
+func StartServer() {
 	r := gin.Default()
 
 	r.GET("/ws", websocketHandle)
 	r.GET("/subjects", getSubjectsHandler)
 	r.POST("/course", getCourseHandler)
+	r.Run(":4000")
 }
 
 var upgrader = websocket.Upgrader{

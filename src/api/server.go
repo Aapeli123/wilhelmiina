@@ -14,6 +14,10 @@ func StartServer() {
 	r.GET("/ws", websocketHandle)
 	r.GET("/subjects", getSubjectsHandler)
 	r.POST("/course", getCourseHandler)
+	r.POST("/auth", authHandler)
+
+	startSessionHandler()
+
 	r.Run(":4000")
 }
 

@@ -112,6 +112,9 @@ func GetUser(id string) (User, error) {
 	var user User
 	err := collection.FindOne(context.TODO(), filter).Decode(&user)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return User{}, ErrUserNotFound
+		}
 		return User{}, err
 	}
 	return user, nil
@@ -159,6 +162,9 @@ func GetUserByName(name string) (User, error) {
 	var user User
 	err := collection.FindOne(context.TODO(), filter).Decode(&user)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return User{}, ErrUserNotFound
+		}
 		return User{}, err
 	}
 	return user, nil

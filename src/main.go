@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"wilhelmiina/api"
 	"wilhelmiina/database"
-	"wilhelmiina/schedule"
 )
 
 func main() {
-	database.Init()
-	subjects, _ := schedule.LoadSubjects()
+	database.Init() // Start database conn
 	api.StartServer()
-	fmt.Println(subjects)
 	database.Close() // Close database connection
 }

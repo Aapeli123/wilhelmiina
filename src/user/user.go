@@ -16,7 +16,19 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// User represents an user of the service
+// User represents an user of this service
+//
+// PermissionLevel:
+//
+// Basically permissionlevels work like this:
+//
+// 0: Student, has all basic permissions
+//
+// 1: Teacher, can assing students to own groups
+//
+// 2: Manager, can manage groups and schedules
+//
+// 3: Admin, can create new subjects, courses and users
 type User struct {
 	Username        string
 	Fullname        string
@@ -26,7 +38,7 @@ type User struct {
 	LastLogin       int64
 	Online          bool
 	ScheduleIDs     []string
-	PermissionLevel int // PermissionLevel tells the program what actions you can perform, higher number represents more permissions
+	PermissionLevel int // PermissionLevel tells the system what actions user can do. Only users with permissionlevel of over 3 can create new users.
 }
 
 // Teacher represents a teacher
@@ -211,4 +223,9 @@ func doesUserExist(id string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// GetUsers returns a slice of all users
+func GetUsers() {
+	// TODO
 }

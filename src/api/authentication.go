@@ -3,28 +3,13 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"time"
 	"wilhelmiina/user"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 )
-
-var sessions []Session
 
 // ErrSessNotFound is thrown when session is not found while looking for session
 var ErrSessNotFound = errors.New("Session not found")
-
-// Session represents an user that has logged in.
-// To complete any actions that require authentication, you need an valid session id.
-// sessions are stored in a slice and expire in 30 minutes after inactivity if not defined otherwise.
-type Session struct {
-	SessionID string
-	WsConn    *websocket.Conn
-	UserID    string
-	Expires   int64
-}
 
 type authReq struct {
 	Username string
@@ -69,7 +54,14 @@ func loginHandler(c *gin.Context) {
 		})
 		return
 	}
-	sess := addSession(foundUser)
+	sess, err := addSession(foundUser)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
 	c.JSON(200, authRes{
 		Success:   true,
 		SessionID: sess.SessionID,
@@ -148,44 +140,26 @@ func signupHandler(c *gin.Context) {
 	})
 }
 
-// Adds a session for user. Returns the session id
-func addSession(u user.User) Session {
-	exprire := time.Now().Add(30 * time.Minute)
-	s := Session{
-		SessionID: uuid.New().String(),
-		Expires:   exprire.Unix(),
-		UserID:    u.UUID,
+type logoutReq struct {
+	SessionID string
+}
+
+type logoutRes struct {
+	Success bool
+}
+
+func logoutHandler(c *gin.Context) {
+	var req logoutReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
 	}
-
-	sessions = append(sessions, s)
-	return s
-}
-
-func startSessionHandler() {
-	ticker := time.NewTicker(time.Second * 5)
-	go sessionHandler(ticker)
-}
-
-func removeSess(index int) {
-	sessions = append(sessions[:index], sessions[index+1:]...)
-}
-
-func sessionHandler(ticker *time.Ticker) {
-	for {
-		t := <-ticker.C
-		for i, sess := range sessions {
-			if sess.Expires < t.Unix() {
-				removeSess(i)
-			}
-		}
-	}
-}
-
-func getSession(SID string) (Session, error) {
-	for _, s := range sessions {
-		if s.SessionID == SID {
-			return s, nil
-		}
-	}
-	return Session{}, ErrSessNotFound
+	removeSess(req.SessionID)
+	c.JSON(200, logoutRes{
+		Success: true,
+	})
 }

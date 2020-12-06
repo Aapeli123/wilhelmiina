@@ -90,3 +90,13 @@ func getSessions() ([]Session, error) {
 	}
 	return sessions, nil
 }
+
+// validateSession returns true if SID is valid, false otherwise
+func validateSession(SID string) bool {
+	sess, err := getSession(SID)
+
+	if err != nil {
+		return false
+	}
+	return sess.Expires > time.Now().Unix()
+}

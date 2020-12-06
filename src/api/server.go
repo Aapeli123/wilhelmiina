@@ -27,12 +27,39 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+type websocketRes struct {
+	Message string
+	Success bool
+}
+
 func websocketHandle(c *gin.Context) {
+	type wsAuthReq struct {
+		SessionID string
+	}
+	req := wsAuthReq{}
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return
 	}
-	// TODO Do something with connection...
-	conn.Close() // Close the connection
+	err = conn.ReadJSON(&req)
+	if err != nil {
+		conn.WriteJSON(websocketRes{
+			Success: false,
+			Message: err.Error(),
+		})
+		conn.Close()
+		return
+	}
+	wsSession, err := addWsSession(conn, req.SessionID)
+	if err != nil {
+		conn.WriteJSON(websocketRes{
+			Success: false,
+			Message: err.Error(),
+		})
+		conn.Close()
+		return
+	}
+	handleWebsocketConnection(wsSession)
+	// conn.Close() // Close the connection
 }

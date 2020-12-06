@@ -13,5 +13,5 @@ type Message struct {
 type Thread struct {
 	ThreadID string
 	Messages []string
-	Members  string
+	Members  []string
 }

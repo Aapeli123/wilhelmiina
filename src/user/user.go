@@ -226,6 +226,16 @@ func doesUserExist(id string) (bool, error) {
 }
 
 // GetUsers returns a slice of all users
-func GetUsers() {
-	// TODO
+func GetUsers() ([]User, error) {
+	var users []User
+	cur, err := database.DbClient.Database("test").Collection("users").Find(context.TODO(), bson.D{{}})
+	if err != nil {
+		return nil, err
+	}
+	for cur.Next(context.TODO()) {
+		var elem User
+		cur.Decode(&elem)
+		users = append(users, elem)
+	}
+	return users, nil
 }

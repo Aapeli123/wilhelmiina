@@ -26,14 +26,14 @@ type Group struct {
 	CourseID string
 	Name     string
 	Position int8
-	Teacher  user.User
-	Students []user.User
+	Teacher  string
+	Students []string
 	GroupID  string
 }
 
 // AddStudent adds a new user to the group and saves change to database
 func (g *Group) AddStudent(user user.User) {
-	g.Students = append(g.Students, user)
+	g.Students = append(g.Students, user.UUID)
 	filter := bson.M{
 		"groupid": g.GroupID,
 	}
@@ -54,8 +54,8 @@ func AddGroup(c Course, teacher user.User, position int8) (Group, error) {
 		GroupID:  uuid.New().String(),
 		CourseID: c.CourseID,
 		Position: position,
-		Teacher:  teacher,
-		Students: []user.User{},
+		Teacher:  teacher.UUID,
+		Students: []string{},
 	}
 
 	collection := database.DbClient.Database("test").Collection("groups")

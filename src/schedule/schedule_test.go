@@ -161,10 +161,10 @@ func TestProgramFlow(t *testing.T) {
 		t.Error("Found group did not have any students")
 	}
 
-	if foundGroup.Students[0].UUID != student.UUID {
+	if foundGroup.Students[0] != student.UUID {
 		t.Error("Database group had wrong student")
 	}
-	groupStudent, _ := user.GetUser(foundGroup.Students[0].UUID)
+	groupStudent, _ := user.GetUser(foundGroup.Students[0])
 	if len(groupStudent.ScheduleIDs) < 1 {
 		t.Error("User had no schedules")
 	}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,14 +13,30 @@ func StartServer() {
 	r := gin.Default()
 
 	r.GET("/ws", websocketHandle)
+
 	r.GET("/subjects", getSubjectsHandler)
-	r.POST("/course", getCourseHandler)
+	r.GET("/subject/:id")
+
+	r.GET("/seasons", seasonsHandler)
+	r.GET("/season/:id", getSeasonHandler)
+
+	r.POST("/schedule", scheduleHandler)
+
+	r.GET("/course/:id", getCourseHandler)
+
 	r.POST("/auth/login", loginHandler)
 	r.POST("/auth/adduser", signupHandler)
 
 	startSessionHandler()
 
 	r.Run(":4000")
+}
+
+func seasonsHandler(c *gin.Context) {
+	// TODO Get all seasons
+}
+func getSeasonHandler(c *gin.Context) {
+	// TODO Get one season based on id
 }
 
 var upgrader = websocket.Upgrader{
@@ -30,6 +47,23 @@ var upgrader = websocket.Upgrader{
 type websocketRes struct {
 	Message string
 	Success bool
+}
+
+func scheduleHandler(c *gin.Context) {
+	type scheduleReq struct {
+		SID        string
+		ScheduleID string
+	}
+	var req scheduleReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	// TODO Get schedule for user specified in request.
 }
 
 func websocketHandle(c *gin.Context) {

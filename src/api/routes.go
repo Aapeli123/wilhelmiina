@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"wilhelmiina/schedule"
 
 	"github.com/gin-gonic/gin"
@@ -29,16 +28,8 @@ func getSubjectsHandler(c *gin.Context) {
 }
 
 func getCourseHandler(c *gin.Context) {
-	var req request
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{
-			Message: "Error : " + err.Error(),
-			Success: false,
-		})
-		return
-	}
-	course, err := schedule.GetCourse(req.ID)
+	id := c.Param("id")
+	course, err := schedule.GetCourse(id)
 	if err != nil {
 		c.AbortWithStatusJSON(404, errRes{
 			Message: "Error : " + err.Error(),

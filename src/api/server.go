@@ -16,7 +16,7 @@ func StartServer() {
 	r.GET("/ws", websocketHandle)
 
 	r.GET("/subjects", getSubjectsHandler)
-	r.GET("/subject/:id")
+	r.GET("/subjects/:id")
 
 	r.GET("/seasons", seasonsHandler)
 	r.GET("/seasons/:id", getSeasonHandler)
@@ -24,8 +24,11 @@ func StartServer() {
 
 	r.POST("/schedule", scheduleHandler)
 
-	r.GET("/course/:id", getCourseHandler)
-	r.GET("/courses/:season", getGroupsForSeasonHandler)
+	r.GET("/groups/:season", getGroupsForSeasonHandler)
+	r.GET("/group/:id", getGroupHandler)
+
+	r.GET("/courses/:id", getCourseHandler)
+	r.GET("/courses/:id/groups", getGroupsForCourseHandler)
 	r.GET("/courses", coursesHandler)
 
 	r.POST("/auth/login", loginHandler)
@@ -34,6 +37,33 @@ func StartServer() {
 	startSessionHandler()
 
 	r.Run(":4000")
+}
+
+func getGroupHandler(c *gin.Context) {
+	groupID := c.Param("id")
+	type groupRes struct {
+		Groups  schedule.Group
+		Success bool
+	}
+	group, err := schedule.GetGroup(groupID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
+	}
+	c.JSON(200, groupRes{Groups: group, Success: true})
+
+}
+
+func getGroupsForCourseHandler(c *gin.Context) {
+	courseID := c.Param("id")
+	type groupsRes struct {
+		Groups  []schedule.Group
+		Success bool
+	}
+	groups, err := schedule.GetGroupsForCourse(courseID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
+	}
+	c.JSON(200, groupsRes{Groups: groups, Success: true})
 }
 
 func seasonsHandler(c *gin.Context) {
@@ -54,8 +84,16 @@ func getSeasonHandler(c *gin.Context) {
 
 func getGroupsForSeasonHandler(c *gin.Context) {
 	seasonID := c.Param("season")
-	schedule.GetSeason(seasonID)
-	// Get all courses in specific season
+	type groupsRes struct {
+		Groups  []schedule.Group
+		Success bool
+	}
+	groups, err := schedule.GetGroupsInSeason(seasonID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
+		return
+	}
+	c.JSON(200, groupsRes{Groups: groups, Success: true})
 }
 
 func coursesHandler(c *gin.Context) {

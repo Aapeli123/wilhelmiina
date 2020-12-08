@@ -8,7 +8,7 @@ They should always contain a field that tells if the operation was succesful.
 ```json
 {
     "Success": false,
-    "Message": "Sample message"
+    "Message": "Sample error message"
 }
 ```
 # Routes:

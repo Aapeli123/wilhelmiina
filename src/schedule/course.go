@@ -68,6 +68,24 @@ func AddGroup(c Course, teacher user.User, position int8, season Season) (Group,
 	return group, nil
 }
 
+// GetGroupsInSeason returns a slice of all the groups that are in defined season
+func GetGroupsInSeason(seasonID string) ([]Group, error) {
+	collection := database.DbClient.Database("test").Collection("groups")
+	cur, err := collection.Find(context.TODO(), bson.M{
+		"season": seasonID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	groups := []Group{}
+	for cur.Next(context.TODO()) {
+		var group Group
+		cur.Decode(&group)
+		groups = append(groups, group)
+	}
+	return groups, nil
+}
+
 // GetGroupsForCourse gets all groups for specific course
 func GetGroupsForCourse(CourseID string) ([]Group, error) {
 	filter := bson.M{

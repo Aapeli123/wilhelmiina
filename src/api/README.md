@@ -19,10 +19,11 @@ GET `/subject/:id`
 
 ### Get a specific course:
 GET `/course/:id`
-### Get courses in a specific season:
-GET `/courses/:seasonID`
 ### Get all courses:
 GET `/courses`
+
+### Get groups in a specific season:
+GET `/groups/:seasonID`
 
 ### Get an users schedule:
 POST `/schedule`

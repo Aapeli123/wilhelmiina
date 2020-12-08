@@ -19,12 +19,13 @@ func StartServer() {
 	r.GET("/subject/:id")
 
 	r.GET("/seasons", seasonsHandler)
-	r.GET("/season/:id", getSeasonHandler)
+	r.GET("/seasons/:id", getSeasonHandler)
+	r.POST("/seasons/create")
 
 	r.POST("/schedule", scheduleHandler)
 
 	r.GET("/course/:id", getCourseHandler)
-	r.GET("/courses/:season", getCoursesForSeasonHandler)
+	r.GET("/courses/:season", getGroupsForSeasonHandler)
 	r.GET("/courses", coursesHandler)
 
 	r.POST("/auth/login", loginHandler)
@@ -51,7 +52,9 @@ func getSeasonHandler(c *gin.Context) {
 	// TODO Get one season based on id
 }
 
-func getCoursesForSeasonHandler(c *gin.Context) {
+func getGroupsForSeasonHandler(c *gin.Context) {
+	seasonID := c.Param("season")
+	schedule.GetSeason(seasonID)
 	// Get all courses in specific season
 }
 

@@ -29,6 +29,7 @@ type Group struct {
 	Teacher  string
 	Students []string
 	GroupID  string
+	SeasonID string
 }
 
 // AddStudent adds a new user to the group and saves change to database
@@ -42,7 +43,7 @@ func (g *Group) AddStudent(user user.User) {
 }
 
 // AddGroup creates a new group and saves it to database
-func AddGroup(c Course, teacher user.User, position int8) (Group, error) {
+func AddGroup(c Course, teacher user.User, position int8, season Season) (Group, error) {
 	prevGroups, err := GetGroupsForCourse(c.CourseID)
 	if err != nil {
 		return Group{}, err
@@ -56,6 +57,7 @@ func AddGroup(c Course, teacher user.User, position int8) (Group, error) {
 		Position: position,
 		Teacher:  teacher.UUID,
 		Students: []string{},
+		SeasonID: season.ID,
 	}
 
 	collection := database.DbClient.Database("test").Collection("groups")

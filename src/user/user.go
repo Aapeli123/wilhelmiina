@@ -37,7 +37,6 @@ type User struct {
 	UUID            string
 	LastLogin       int64
 	Online          bool
-	ScheduleIDs     []string
 	PermissionLevel int // PermissionLevel tells the system what actions user can do. Only users with permissionlevel of over 3 can create new users.
 }
 
@@ -78,16 +77,6 @@ func (u *User) CheckPassword(password string) (bool, error) {
 	comparisonHash := argon2.IDKey([]byte(password), salt, c.time, c.memory, c.threads, c.keyLen)
 
 	return (subtle.ConstantTimeCompare(decodedHash, comparisonHash) == 1), nil
-}
-
-// AddSchedule adds the schedule id to user schedule ids list, then it updates database
-func (u *User) AddSchedule(scheduleID string) {
-	u.ScheduleIDs = append(u.ScheduleIDs, scheduleID)
-	collection := database.DbClient.Database("test").Collection("users")
-	filter := bson.M{
-		"uuid": u.UUID,
-	}
-	collection.FindOneAndReplace(context.TODO(), filter, *u)
 }
 
 // CreateUser makes a new user and saves it to database.

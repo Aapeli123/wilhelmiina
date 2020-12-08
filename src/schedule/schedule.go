@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Season represents one season of school where the schedule stays same
@@ -33,19 +34,26 @@ func AddSchedule(ownerID string, seasonID string) (Schedule, error) {
 		Season:     seasonID,
 		ScheduleID: uuid.New().String(),
 	}
+	// Check if schedule owner exists
+	_, err := user.GetUser(ownerID)
+	if err != nil {
+		return Schedule{}, err
+	}
+	// Insert schedule to database
 	collection := database.DbClient.Database("test").Collection("schedules")
-	_, err := collection.InsertOne(context.TODO(), schedule)
+	_, err = collection.InsertOne(context.TODO(), schedule)
 	if err != nil {
 		return Schedule{}, err
 	}
-
-	// Add the schedule to the user that has it
-	user, err := user.GetUser(ownerID)
-	if err != nil {
-		return Schedule{}, err
-	}
-	user.AddSchedule(schedule.ScheduleID)
 	return schedule, nil
+}
+
+// RemoveSchedule deletes the specified schedule from database
+func RemoveSchedule(scheduleID string) {
+	collection := database.DbClient.Database("test").Collection("schedules")
+	collection.DeleteOne(context.TODO(), bson.M{
+		"scheduleid": scheduleID,
+	})
 }
 
 // AddGroup adds a new course to the schedule specified and saves the change to database
@@ -84,25 +92,16 @@ func DeleteGroup(groupID string) {
 
 // GetScheduleForUser gets the schedule of an user in specific season
 func GetScheduleForUser(ownerID string, seasonID string) (Schedule, error) {
-	user, err := user.GetUser(ownerID)
-	if err != nil {
-		return Schedule{}, err
-	}
+	collection := database.DbClient.Database("test").Collection("schedules")
 	var schedule Schedule
-	found := false
-	for _, id := range user.ScheduleIDs {
-		s, err := GetSchedule(id)
-		if err != nil {
-			return Schedule{}, err // Return error if something goes wrong in getting schedule
+	err := collection.FindOne(context.TODO(), bson.M{
+		"ownerid": ownerID, "season": seasonID,
+	}).Decode(&schedule)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return Schedule{}, ErrScheduleNotFound
 		}
-		if s.Season == seasonID {
-			found = true
-			schedule = s
-			break
-		}
-	}
-	if !found {
-		return Schedule{}, ErrScheduleNotFound
+		return Schedule{}, err
 	}
 	return schedule, nil
 }
@@ -175,11 +174,14 @@ func GetSeason(ID string) (Season, error) {
 	return season, nil
 }
 
-// DeleteSeason removes season from database
+// DeleteSeason removes season from database, it also should remove all schedules associated with it
 func DeleteSeason(ID string) {
 	collection := database.DbClient.Database("test").Collection("seasons")
 	filter := bson.M{
 		"id": ID,
 	}
 	collection.FindOneAndDelete(context.TODO(), filter)
+	database.DbClient.Database("test").Collection("schedules").DeleteMany(context.TODO(), bson.M{
+		"season": ID,
+	})
 }

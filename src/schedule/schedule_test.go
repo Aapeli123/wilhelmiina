@@ -115,7 +115,7 @@ func TestProgramFlow(t *testing.T) {
 		t.Error("AddSchedule failed:", err)
 	}
 
-	group, err := AddGroup(course, teacher, 1)
+	group, err := AddGroup(course, teacher, 1, season)
 	if err != nil {
 		t.Error("AddGroup failed:", err)
 	}
@@ -165,10 +165,10 @@ func TestProgramFlow(t *testing.T) {
 		t.Error("Database group had wrong student")
 	}
 	groupStudent, _ := user.GetUser(foundGroup.Students[0])
-	if len(groupStudent.ScheduleIDs) < 1 {
-		t.Error("User had no schedules")
+	if groupStudent.UUID != student.UUID {
+		t.Error("Wrong uuid")
 	}
-	userSchedule, err := GetSchedule(groupStudent.ScheduleIDs[0])
+	userSchedule, err := GetScheduleForUser(groupStudent.UUID, season.ID)
 	if err != nil {
 		t.Error("GetSchedule failed:", err)
 	}
@@ -191,8 +191,7 @@ func TestProgramFlow(t *testing.T) {
 	DeleteCourse(course.CourseID)
 	DeleteGroup(group.GroupID)
 	DeleteSeason(season.ID)
-	DeleteSchedule(studentSchedule.ScheduleID)
-	DeleteSchedule(teacherSchedule.ScheduleID)
+	_, err = GetSchedule(teacherSchedule.ScheduleID)
 
 	user.DeleteUser(teacher.UUID)
 	user.DeleteUser(student.UUID)

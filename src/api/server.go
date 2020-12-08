@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"wilhelmiina/schedule"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -23,6 +24,8 @@ func StartServer() {
 	r.POST("/schedule", scheduleHandler)
 
 	r.GET("/course/:id", getCourseHandler)
+	r.GET("/courses/:season", getCoursesForSeasonHandler)
+	r.GET("/courses", coursesHandler)
 
 	r.POST("/auth/login", loginHandler)
 	r.POST("/auth/adduser", signupHandler)
@@ -33,10 +36,27 @@ func StartServer() {
 }
 
 func seasonsHandler(c *gin.Context) {
-	// TODO Get all seasons
+	seasons, err := schedule.GetSeasons()
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
+		return
+	}
+	type seasonsRes struct {
+		Seasons []schedule.Season
+		Success bool
+	}
+	c.JSON(200, seasonsRes{Seasons: seasons, Success: true})
 }
 func getSeasonHandler(c *gin.Context) {
 	// TODO Get one season based on id
+}
+
+func getCoursesForSeasonHandler(c *gin.Context) {
+	// Get all courses in specific season
+}
+
+func coursesHandler(c *gin.Context) {
+	// TODO Get all courses
 }
 
 var upgrader = websocket.Upgrader{

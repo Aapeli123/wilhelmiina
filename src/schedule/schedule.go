@@ -147,7 +147,7 @@ func AddSeason(name string, start int64, end int64) (Season, error) {
 	return season, nil
 }
 
-func getSeasons() ([]Season, error) {
+func GetSeasons() ([]Season, error) {
 	collection := database.DbClient.Database("test").Collection("seasons")
 	cur, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {

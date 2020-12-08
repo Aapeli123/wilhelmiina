@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"wilhelmiina/schedule"
+	"wilhelmiina/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -23,6 +24,7 @@ func StartServer() {
 	r.POST("/seasons/create")
 
 	r.POST("/schedule", scheduleHandler)
+	r.POST("/schedule/:seasonid", getScheduleForSeasonHandler)
 
 	r.GET("/groups/:season", getGroupsForSeasonHandler)
 	r.GET("/group/:id", getGroupHandler)
@@ -115,6 +117,10 @@ func scheduleHandler(c *gin.Context) {
 		SID        string
 		ScheduleID string
 	}
+	type scheduleRes struct {
+		Success  bool
+		Schedule schedule.Schedule
+	}
 	var req scheduleReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
@@ -124,7 +130,76 @@ func scheduleHandler(c *gin.Context) {
 		})
 		return
 	}
-	// TODO Get schedule for user specified in request.
+	sess, err := getSession(req.SID)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	userSchedule, err := schedule.GetSchedule(req.ScheduleID)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	user, err := user.GetUser(sess.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	if !(sess.UserID != userSchedule.OwnerID || !(user.PermissionLevel < 2)) {
+		c.AbortWithStatusJSON(403, errRes{
+			Message: "You don't have permission view others schedules",
+			Success: false,
+		})
+		return
+	}
+	c.JSON(200, scheduleRes{Success: true, Schedule: userSchedule})
+}
+
+func getScheduleForSeasonHandler(c *gin.Context) {
+	seasonID := c.Param("seasonid")
+	type scheduleReq struct {
+		SID string
+	}
+	type scheduleRes struct {
+		Success  bool
+		Schedule schedule.Schedule
+	}
+	var req scheduleReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	sess, err := getSession(req.SID)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	userSchedule, err := schedule.GetScheduleForUser(sess.UserID, seasonID)
+	if err != nil {
+		c.AbortWithStatusJSON(404, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	c.JSON(200, scheduleRes{Success: true, Schedule: userSchedule})
+
 }
 
 func websocketHandle(c *gin.Context) {

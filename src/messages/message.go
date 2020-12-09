@@ -1,5 +1,14 @@
 package messages
 
+import (
+	"context"
+	"time"
+	"wilhelmiina/database"
+
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+)
+
 // Message represents a text message sent from an user to another
 //
 // How to send a message:
@@ -10,17 +19,10 @@ package messages
 // 4. Profit.
 type Message struct {
 	Sender    string
-	Recievers []MessageReciever
 	Date      int64
 	Title     string
 	Content   string
 	MessageID string
-}
-
-// MessageReciever represents a user that will recieve the message.
-type MessageReciever struct {
-	UUID   string
-	ReadBy bool
 }
 
 // Thread represents a thread of messages
@@ -34,12 +36,39 @@ type Thread struct {
 //
 // Basically saves the message to database and sets the appends its id to the threads messages slice. Saves changes to database
 func (t *Thread) SendMessage(message Message) error {
-	// TODO
+	_, err := database.DbClient.Database("test").Collection("messages").InsertOne(context.TODO(), message)
+	if err != nil {
+		return err
+	}
+	t.Messages = append(t.Messages, message.MessageID)
+	filter := bson.M{
+		"threadid": t.ThreadID,
+	}
+	database.DbClient.Database("test").Collection("threads").FindOneAndReplace(context.TODO(), filter, *t)
+	return nil
 }
 
 // AddMember adds new user to the threads Members slice.
-func (t *Thread) AddMember(userID string) error {
-	// TODO
+func (t *Thread) AddMember(userID string) {
+	t.Members = append(t.Members, userID)
+	filter := bson.M{
+		"threadid": t.ThreadID,
+	}
+	database.DbClient.Database("test").Collection("threads").FindOneAndReplace(context.TODO(), filter, *t)
+}
+
+// RemoveMember removes an user froms the threads Members slice.
+func (t *Thread) RemoveMember(userID string) {
+	for i, m := range t.Members {
+		if m == userID {
+			t.Members = append(t.Members[:i], t.Members[i+1:]...)
+			break
+		}
+	}
+	filter := bson.M{
+		"threadid": t.ThreadID,
+	}
+	database.DbClient.Database("test").Collection("threads").FindOneAndReplace(context.TODO(), filter, *t)
 }
 
 // DeleteMessage removes a specific message from the thread. Also removes the message from database
@@ -47,9 +76,21 @@ func (t *Thread) DeleteMessage(messageID string) {
 	// TODO
 }
 
-// NewMessage creates a new user that can then be added to a thread
-func NewMessage(from string, content string, title string) (Message, error) {
-	// TODO
+// GetThread should get a thread based on id
+func GetThread(ID string) Thread {
+
+}
+
+// NewMessage creates a new message that can then be added to a thread
+func NewMessage(from string, content string, title string) Message {
+	msg := Message{
+		Sender:    from,
+		Content:   content,
+		Title:     title,
+		MessageID: uuid.New().String(),
+		Date:      time.Now().Unix(),
+	}
+	return msg
 }
 
 // DeleteMessage deletes the message from database. It does not remove it from any threads it is in. For that use Thread.DeleteMessage()

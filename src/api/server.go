@@ -41,31 +41,28 @@ func StartServer() {
 	r.Run(":4000")
 }
 
+type response struct {
+	Success bool
+	Data    interface{}
+}
+
 func getGroupHandler(c *gin.Context) {
 	groupID := c.Param("id")
-	type groupRes struct {
-		Groups  schedule.Group
-		Success bool
-	}
 	group, err := schedule.GetGroup(groupID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
 	}
-	c.JSON(200, groupRes{Groups: group, Success: true})
+	c.JSON(200, response{Data: group, Success: true})
 
 }
 
 func getGroupsForCourseHandler(c *gin.Context) {
 	courseID := c.Param("id")
-	type groupsRes struct {
-		Groups  []schedule.Group
-		Success bool
-	}
 	groups, err := schedule.GetGroupsForCourse(courseID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
 	}
-	c.JSON(200, groupsRes{Groups: groups, Success: true})
+	c.JSON(200, response{Data: groups, Success: true})
 }
 
 func seasonsHandler(c *gin.Context) {
@@ -74,28 +71,26 @@ func seasonsHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
 		return
 	}
-	type seasonsRes struct {
-		Seasons []schedule.Season
-		Success bool
-	}
-	c.JSON(200, seasonsRes{Seasons: seasons, Success: true})
+	c.JSON(200, response{Data: seasons, Success: true})
 }
 func getSeasonHandler(c *gin.Context) {
-	// TODO Get one season based on id
+	seasonID := c.Param("season")
+	season, err := schedule.GetSeason(seasonID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
+		return
+	}
+	c.JSON(200, response{Data: season, Success: true})
 }
 
 func getGroupsForSeasonHandler(c *gin.Context) {
 	seasonID := c.Param("season")
-	type groupsRes struct {
-		Groups  []schedule.Group
-		Success bool
-	}
 	groups, err := schedule.GetGroupsInSeason(seasonID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
 		return
 	}
-	c.JSON(200, groupsRes{Groups: groups, Success: true})
+	c.JSON(200, response{Data: groups, Success: true})
 }
 
 func coursesHandler(c *gin.Context) {
@@ -116,10 +111,6 @@ func scheduleHandler(c *gin.Context) {
 	type scheduleReq struct {
 		SID        string
 		ScheduleID string
-	}
-	type scheduleRes struct {
-		Success  bool
-		Schedule schedule.Schedule
 	}
 	var req scheduleReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
@@ -161,17 +152,13 @@ func scheduleHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(200, scheduleRes{Success: true, Schedule: userSchedule})
+	c.JSON(200, response{Success: true, Data: userSchedule})
 }
 
 func getScheduleForSeasonHandler(c *gin.Context) {
 	seasonID := c.Param("seasonid")
 	type scheduleReq struct {
 		SID string
-	}
-	type scheduleRes struct {
-		Success  bool
-		Schedule schedule.Schedule
 	}
 	var req scheduleReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
@@ -198,7 +185,7 @@ func getScheduleForSeasonHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(200, scheduleRes{Success: true, Schedule: userSchedule})
+	c.JSON(200, response{Success: true, Data: userSchedule})
 
 }
 

@@ -32,6 +32,36 @@ type Thread struct {
 	Members  []string
 }
 
+// CreateThread creates a new thread with specified users and saves it to database
+func CreateThread(creator string, recievers []string) (Thread, error) {
+	members := []string{creator}
+	members = append(members, recievers...)
+	thread := Thread{
+		ThreadID: uuid.New().String(),
+		Messages: []string{},
+		Members:  members,
+	}
+	_, err := database.DbClient.Database("test").Collection("threads").InsertOne(context.TODO(), thread)
+	if err != nil {
+		return Thread{}, err
+	}
+	return thread, nil
+}
+
+// DeleteThread removes a thread from database it also removes all messages associated with it
+func DeleteThread(threadID string) {
+	filter := bson.M{
+		"threadid": threadID,
+	}
+	var thread Thread
+
+	result := database.DbClient.Database("test").Collection("threads").FindOneAndDelete(context.TODO(), filter)
+	result.Decode(&thread)
+	for _, msg := range thread.Messages { // Remove messages associated with thread
+		DeleteMessage(msg)
+	}
+}
+
 // SendMessage sends a response message to all members of the thread.
 //
 // Basically saves the message to database and sets the appends its id to the threads messages slice. Saves changes to database

@@ -97,12 +97,27 @@ func (t *Thread) DeleteMessage(messageID string) {
 
 // GetMessages gets all messages in the thread
 func (t *Thread) GetMessages() ([]Message, error) {
-	// TODO
+	messages := []Message{}
+	for _, m := range t.Messages {
+		msg, err := GetMessage(m)
+		if err != nil {
+			return nil, err
+		}
+		messages = append(messages, msg)
+	}
+	return messages, nil
 }
 
 // GetThread should get a thread based on id
 func GetThread(ID string) (Thread, error) {
-	// TODO
+	thread := Thread{}
+	err := database.DbClient.Database("test").Collection("threads").FindOne(context.TODO(), bson.M{
+		"threadid": ID,
+	}).Decode(&thread)
+	if err != nil {
+		return Thread{}, err
+	}
+	return thread, nil
 }
 
 // NewMessage creates a new message that can then be added to a thread
@@ -119,7 +134,14 @@ func NewMessage(from string, content string, title string) Message {
 
 // GetMessage gets message from database based on message id
 func GetMessage(messageID string) (Message, error) {
-	// TODO
+	msg := Message{}
+	err := database.DbClient.Database("test").Collection("messages").FindOne(context.TODO(), bson.M{
+		"messageid": messageID,
+	}).Decode(&msg)
+	if err != nil {
+		return Message{}, err
+	}
+	return msg, nil
 }
 
 // DeleteMessage deletes the message from database. It does not remove it from any threads it is in. For that use Thread.DeleteMessage()

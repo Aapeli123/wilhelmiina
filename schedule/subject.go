@@ -2,7 +2,8 @@ package schedule
 
 import (
 	"context"
-	"wilhelmiina/database"
+
+	"github.com/Aapeli123/wilhelmiina/database"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

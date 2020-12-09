@@ -3,7 +3,8 @@ package messages
 import (
 	"context"
 	"time"
-	"wilhelmiina/database"
+
+	"github.com/Aapeli123/wilhelmiina/database"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"

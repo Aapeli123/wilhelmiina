@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 	"time"
-	"wilhelmiina/database"
-	"wilhelmiina/user"
+
+	"github.com/Aapeli123/wilhelmiina/database"
+	"github.com/Aapeli123/wilhelmiina/user"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"

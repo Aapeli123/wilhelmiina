@@ -1,7 +1,7 @@
 package api
 
 import (
-	"wilhelmiina/schedule"
+	"github.com/Aapeli123/wilhelmiina/schedule"
 
 	"github.com/gin-gonic/gin"
 )

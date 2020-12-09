@@ -2,8 +2,9 @@ package schedule
 
 import (
 	"testing"
-	"wilhelmiina/database"
-	"wilhelmiina/user"
+
+	"github.com/Aapeli123/wilhelmiina/database"
+	"github.com/Aapeli123/wilhelmiina/user"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )

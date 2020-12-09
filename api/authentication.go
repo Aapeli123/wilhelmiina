@@ -3,7 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"wilhelmiina/user"
+
+	"github.com/Aapeli123/wilhelmiina/user"
 
 	"github.com/gin-gonic/gin"
 )

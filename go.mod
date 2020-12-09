@@ -1,4 +1,4 @@
-module wilhelmiina
+module github.com/Aapeli123/wilhelmiina
 
 go 1.15
 

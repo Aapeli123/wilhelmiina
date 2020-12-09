@@ -3,8 +3,9 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"wilhelmiina/schedule"
-	"wilhelmiina/user"
+
+	"github.com/Aapeli123/wilhelmiina/schedule"
+	"github.com/Aapeli123/wilhelmiina/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

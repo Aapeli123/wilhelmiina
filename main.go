@@ -1,8 +1,8 @@
 package main
 
 import (
-	"wilhelmiina/api"
-	"wilhelmiina/database"
+	"github.com/Aapeli123/wilhelmiina/api"
+	"github.com/Aapeli123/wilhelmiina/database"
 )
 
 func main() {

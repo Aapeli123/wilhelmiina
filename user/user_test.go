@@ -5,7 +5,8 @@ import (
 	"encoding/base64"
 	"strings"
 	"testing"
-	"wilhelmiina/database"
+
+	"github.com/Aapeli123/wilhelmiina/database"
 )
 
 // TestCreateUser Tests user creation

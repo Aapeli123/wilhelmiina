@@ -9,4 +9,6 @@ var (
 	ErrScheduleNotFound = errors.New("Schedule not found")
 	// ErrAlreadyInGroup is returned if someone is already in a group
 	ErrAlreadyInGroup = errors.New("User already in this group")
+	// ErrGroupsNotFound is thrown if there are no groups found
+	ErrGroupsNotFound = errors.New("There were no groups in this season")
 )

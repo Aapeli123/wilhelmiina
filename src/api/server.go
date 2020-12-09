@@ -17,7 +17,7 @@ func StartServer() {
 	r.GET("/ws", websocketHandle)
 
 	r.GET("/subjects", getSubjectsHandler)
-	r.GET("/subjects/:id")
+	r.GET("/subjects/:id", getSubjectHandler)
 
 	r.GET("/seasons", seasonsHandler)
 	r.GET("/seasons/:id", getSeasonHandler)
@@ -39,62 +39,6 @@ func StartServer() {
 	startSessionHandler()
 
 	r.Run(":4000")
-}
-
-type response struct {
-	Success bool
-	Data    interface{}
-}
-
-func getGroupHandler(c *gin.Context) {
-	groupID := c.Param("id")
-	group, err := schedule.GetGroup(groupID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
-	}
-	c.JSON(200, response{Data: group, Success: true})
-
-}
-
-func getGroupsForCourseHandler(c *gin.Context) {
-	courseID := c.Param("id")
-	groups, err := schedule.GetGroupsForCourse(courseID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
-	}
-	c.JSON(200, response{Data: groups, Success: true})
-}
-
-func seasonsHandler(c *gin.Context) {
-	seasons, err := schedule.GetSeasons()
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
-		return
-	}
-	c.JSON(200, response{Data: seasons, Success: true})
-}
-func getSeasonHandler(c *gin.Context) {
-	seasonID := c.Param("season")
-	season, err := schedule.GetSeason(seasonID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
-		return
-	}
-	c.JSON(200, response{Data: season, Success: true})
-}
-
-func getGroupsForSeasonHandler(c *gin.Context) {
-	seasonID := c.Param("season")
-	groups, err := schedule.GetGroupsInSeason(seasonID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, errRes{Success: false, Message: err.Error()})
-		return
-	}
-	c.JSON(200, response{Data: groups, Success: true})
-}
-
-func coursesHandler(c *gin.Context) {
-	// TODO Get all courses
 }
 
 var upgrader = websocket.Upgrader{

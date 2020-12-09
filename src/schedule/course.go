@@ -78,9 +78,15 @@ func GetGroupsInSeason(seasonID string) ([]Group, error) {
 		return nil, err
 	}
 	groups := []Group{}
+	if cur.RemainingBatchLength() < 1 {
+		return nil, ErrGroupsNotFound
+	}
 	for cur.Next(context.TODO()) {
 		var group Group
-		cur.Decode(&group)
+		err = cur.Decode(&group)
+		if err != nil {
+			return nil, err
+		}
 		groups = append(groups, group)
 	}
 	return groups, nil
@@ -112,7 +118,7 @@ func GetGroup(groupID string) (Group, error) {
 	var group Group
 	err := database.DbClient.Database("test").Collection("groups").FindOne(context.TODO(), filter).Decode(&group)
 	if err != nil {
-		return Group{}, nil
+		return Group{}, err
 	}
 	return group, nil
 }

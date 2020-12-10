@@ -10,11 +10,11 @@ import (
 
 func sendMessageHandler(c *gin.Context) {
 	type sendMessageReq struct {
-		SID       string
-		Title     string
-		Message   string
-		Recievers []string
-		ThreadID  string
+		SID         string
+		ThreadTitle string
+		Message     string
+		Recievers   []string
+		ThreadID    string
 	}
 	var req sendMessageReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
@@ -36,7 +36,7 @@ func sendMessageHandler(c *gin.Context) {
 	}
 	var thread messages.Thread
 	if req.ThreadID == "" {
-		msgThread, err := messages.CreateThread(sender.UUID, req.Recievers)
+		msgThread, err := messages.CreateThread(sender.UUID, req.Recievers, req.ThreadTitle)
 		if err != nil {
 			c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
 			return
@@ -50,7 +50,7 @@ func sendMessageHandler(c *gin.Context) {
 		}
 	}
 
-	msg := messages.NewMessage(sender.UUID, req.Message, req.Title)
+	msg := messages.NewMessage(sender.UUID, req.Message)
 
 	err = thread.SendMessage(msg)
 	if err != nil {
@@ -58,4 +58,17 @@ func sendMessageHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(200, response{Success: true})
+}
+
+func getMessageHandler(c *gin.Context) {
+	type getMsgReq struct {
+		MessageID string
+		SID       string
+	}
+	var req getMsgReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
 }

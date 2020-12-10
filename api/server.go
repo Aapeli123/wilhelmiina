@@ -37,8 +37,9 @@ func StartServer() {
 	r.POST("/auth/login", loginHandler)
 	r.POST("/auth/adduser", signupHandler)
 
-	r.POST("/messages/send")
-	r.POST("/messages/getMessage")
+	r.POST("/messages/send", sendMessageHandler)
+	r.POST("/messages/getThread")
+	r.POST("/messages/getMessage", getMessageHandler)
 	r.POST("/messages/getMessages")
 
 	startSessionHandler()

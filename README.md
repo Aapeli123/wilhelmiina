@@ -27,10 +27,10 @@ Store the required information in the <fields> in environment variables in the s
 ## Testing
 `cd ./src`
 ### Test all files:
-`go test ./database ./user ./schedule -count=1`
+`go test ./database ./user ./schedule ./messages -count=1`
 
 ### For verbose test output:
-`go test ./database ./user ./schedule -count=1 -v`
+`go test ./database ./user ./schedule ./messages -count=1 -v`
 
 ## Contributing
 Just add a pull request lol.

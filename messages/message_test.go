@@ -11,7 +11,7 @@ func TestMessageFlow(t *testing.T) {
 	database.Init()
 	testSender, _ := user.CreateUser("Testaaja", 4, "Test McTestface", "teakjhndwa@fkla.akdawk", "password1")
 	testReciever, _ := user.CreateUser("Testaaja2", 4, "Test McTestface2", "tadwwsaeakjhndwa@fkla.akdawk", "password2")
-	thread, err := CreateThread(testSender.UUID, []string{testReciever.UUID})
+	thread, err := CreateThread(testSender.UUID, []string{testReciever.UUID}, "Test thread")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,13 +29,13 @@ func TestMessageFlow(t *testing.T) {
 		t.Fatal("Returned wrong thread")
 	}
 
-	msg := NewMessage(testSender.UUID, "Lorem ipsum etc..", "Test")
+	msg := NewMessage(testSender.UUID, "Lorem ipsum etc..")
 	err = thread.SendMessage(msg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	msg2 := NewMessage(testReciever.UUID, "Also testing", "test2")
+	msg2 := NewMessage(testReciever.UUID, "Also testing")
 	thread.SendMessage(msg2)
 	thread3, err := GetThread(thread.ThreadID)
 	if thread3.Messages[0] != msg.MessageID {
@@ -47,7 +47,7 @@ func TestMessageFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if gottenMessage.Title != "test2" {
+	if gottenMessage.Content != "Also testing" {
 		t.Fatal("Got wrong message")
 	}
 	thread3.DeleteMessage(gottenMessage.MessageID)

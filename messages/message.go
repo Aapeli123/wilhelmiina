@@ -21,7 +21,6 @@ import (
 type Message struct {
 	Sender    string
 	Date      int64
-	Title     string
 	Content   string
 	MessageID string
 }
@@ -30,17 +29,19 @@ type Message struct {
 type Thread struct {
 	ThreadID string
 	Messages []string
+	Title    string
 	Members  []string
 }
 
 // CreateThread creates a new thread with specified users and saves it to database
-func CreateThread(creator string, recievers []string) (Thread, error) {
+func CreateThread(creator string, recievers []string, title string) (Thread, error) {
 	members := []string{creator}
 	members = append(members, recievers...)
 	thread := Thread{
 		ThreadID: uuid.New().String(),
 		Messages: []string{},
 		Members:  members,
+		Title:    title,
 	}
 	_, err := database.DbClient.Database("test").Collection("threads").InsertOne(context.TODO(), thread)
 	if err != nil {
@@ -152,11 +153,10 @@ func GetThread(ID string) (Thread, error) {
 }
 
 // NewMessage creates a new message that can then be added to a thread
-func NewMessage(from string, content string, title string) Message {
+func NewMessage(from string, content string) Message {
 	msg := Message{
 		Sender:    from,
 		Content:   content,
-		Title:     title,
 		MessageID: uuid.New().String(),
 		Date:      time.Now().Unix(),
 	}

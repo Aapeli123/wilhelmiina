@@ -50,7 +50,7 @@ func sendMessageHandler(c *gin.Context) {
 		}
 	}
 
-	msg := messages.NewMessage(sender.UUID, req.Message)
+	msg := messages.NewMessage(sender.UUID, req.Message, thread.ThreadID)
 
 	err = thread.SendMessage(msg)
 	if err != nil {
@@ -71,4 +71,102 @@ func getMessageHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
 		return
 	}
+	session, err := getSession(req.SID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+
+	msg, err := messages.GetMessage(req.MessageID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	msgThread, err := messages.GetThread(msg.ThreadID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	perms := false
+	for _, userID := range msgThread.Members {
+		if userID == session.UserID {
+			perms = true
+			break
+		}
+	}
+
+	if !perms {
+		c.AbortWithStatusJSON(403, errRes{Message: "You don't have permission to view that message", Success: false})
+		return
+	}
+
+	c.JSON(200, response{
+		Data:    msg,
+		Success: true,
+	})
+}
+
+func getThreadsHandler(c *gin.Context) {
+	type getThreadsReq struct {
+		SID string
+	}
+	var req getThreadsReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	sess, err := getSession(req.SID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+
+	threads, err := messages.GetThreadsForUser(sess.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	c.JSON(200, response{
+		Success: true,
+		Data:    threads,
+	})
+}
+
+func getThreadHandler(c *gin.Context) {
+	type getThreadReq struct {
+		SID      string
+		ThreadID string
+	}
+	var req getThreadReq
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	sess, err := getSession(req.SID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	thread, err := messages.GetThread(req.ThreadID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
+		return
+	}
+	perms := false
+	for _, m := range thread.Members {
+		if m == sess.UserID {
+			perms = true
+			break
+		}
+	}
+	if !perms {
+		c.AbortWithStatusJSON(403, errRes{Message: "You don't have permission to access that thread", Success: false})
+		return
+	}
+	c.JSON(200, response{
+		Success: true,
+		Data:    thread,
+	})
 }

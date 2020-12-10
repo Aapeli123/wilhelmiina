@@ -29,13 +29,13 @@ func TestMessageFlow(t *testing.T) {
 		t.Fatal("Returned wrong thread")
 	}
 
-	msg := NewMessage(testSender.UUID, "Lorem ipsum etc..")
+	msg := NewMessage(testSender.UUID, "Lorem ipsum etc..", thread.ThreadID)
 	err = thread.SendMessage(msg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	msg2 := NewMessage(testReciever.UUID, "Also testing")
+	msg2 := NewMessage(testReciever.UUID, "Also testing", thread.ThreadID)
 	thread.SendMessage(msg2)
 	thread3, err := GetThread(thread.ThreadID)
 	if thread3.Messages[0] != msg.MessageID {

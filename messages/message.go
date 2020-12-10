@@ -23,6 +23,7 @@ type Message struct {
 	Date      int64
 	Content   string
 	MessageID string
+	ThreadID  string
 }
 
 // Thread represents a thread of messages
@@ -153,12 +154,13 @@ func GetThread(ID string) (Thread, error) {
 }
 
 // NewMessage creates a new message that can then be added to a thread
-func NewMessage(from string, content string) Message {
+func NewMessage(from string, content string, threadID string) Message {
 	msg := Message{
 		Sender:    from,
 		Content:   content,
 		MessageID: uuid.New().String(),
 		Date:      time.Now().Unix(),
+		ThreadID:  threadID,
 	}
 	return msg
 }
@@ -181,4 +183,37 @@ func DeleteMessage(messageID string) {
 		"messageid": messageID,
 	}
 	database.DbClient.Database("test").Collection("messages").FindOneAndDelete(context.TODO(), filter)
+}
+
+// GetThreadsForUser returns all threas for specified user
+func GetThreadsForUser(userID string) ([]Thread, error) {
+	cur, err := database.DbClient.Database("test").Collection("threads").Find(context.TODO(), bson.D{{}}) // Get all threads
+	if err != nil {
+		return nil, err
+	}
+	var threads []Thread
+	for cur.Next(context.TODO()) {
+		var thread Thread
+		err := cur.Decode(&thread)
+		if err != nil {
+			return nil, err
+		}
+		threads = append(threads, thread)
+	}
+	var usersThreads []Thread
+	for _, thread := range threads {
+		if doesContainUser(userID, thread) {
+			usersThreads = append(usersThreads, thread)
+		}
+	}
+	return usersThreads, nil
+}
+
+func doesContainUser(userID string, thread Thread) bool {
+	for _, u := range thread.Members {
+		if u == userID {
+			return true
+		}
+	}
+	return false
 }

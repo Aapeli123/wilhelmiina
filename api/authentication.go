@@ -135,6 +135,9 @@ func signupHandler(c *gin.Context) {
 		})
 		return
 	}
+	if userCreator.TemporaryAdmin {
+		user.DeleteUser(userCreator.UUID)
+	}
 	c.JSON(200, signupRes{
 		Success: true,
 		UUID:    newUser.UUID,

@@ -39,6 +39,7 @@ type User struct {
 	LastLogin       int64
 	Online          bool
 	PermissionLevel int // PermissionLevel tells the system what actions user can do. Only users with permissionlevel of over 3 can create new users.
+	TemporaryAdmin  bool
 }
 
 // Teacher represents a teacher
@@ -96,6 +97,32 @@ func CreateUser(username string, permissionLevel int, fullName string, email str
 		Online:          false,
 		LastLogin:       time.Now().Unix(),
 		PermissionLevel: permissionLevel,
+		TemporaryAdmin:  false,
+	}
+	collection := database.DbClient.Database("test").Collection("users")
+	_, err = collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+// CreateTemporaryAdmin creates an user that has temp admin rights, it is deleted when it is first used.
+func CreateTemporaryAdmin(username string, password string) (User, error) {
+	hashed, err := hashPassword(password, &passwordConfig)
+	if err != nil {
+		return User{}, err
+	}
+	user := User{
+		UUID:            uuid.New().String(),
+		Username:        username,
+		Fullname:        "Temporary Admin",
+		Email:           "notanemail",
+		PasswordHash:    hashed,
+		Online:          false,
+		LastLogin:       time.Now().Unix(),
+		PermissionLevel: 999,
+		TemporaryAdmin:  true,
 	}
 	collection := database.DbClient.Database("test").Collection("users")
 	_, err = collection.InsertOne(context.TODO(), user)

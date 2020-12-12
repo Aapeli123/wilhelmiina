@@ -107,6 +107,20 @@ func CreateUser(username string, permissionLevel int, fullName string, email str
 	return user, nil
 }
 
+// DoesAdminExist checks if there is any account in the database that has admin rights
+func DoesAdminExist() (bool, error) {
+	users, err := GetUsers()
+	if err != nil {
+		return false, err
+	}
+	for _, u := range users {
+		if u.PermissionLevel >= 3 {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // CreateTemporaryAdmin creates an user that has temp admin rights, it is deleted when it is first used.
 func CreateTemporaryAdmin(username string, password string) (User, error) {
 	hashed, err := hashPassword(password, &passwordConfig)

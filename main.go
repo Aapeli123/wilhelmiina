@@ -16,9 +16,12 @@ import (
 
 func main() {
 	database.Init() // Start database connection
-	users, _ := user.GetUsers()
-	if len(users) == 0 { // Create an temporary admin account for users to access the service
-		fmt.Println("IMPORTANT:\nThere are no users in the database.\nCreating a temporary admin user:")
+	admin, err := user.DoesAdminExist()
+	if err != nil {
+		panic(err)
+	}
+	if !admin { // Create an temporary admin account for users to access the service
+		fmt.Println("IMPORTANT:\nThere are no admin users in the database.\nCreating a temporary admin user:")
 		un, pw, err := credentials()
 		if err != nil {
 			panic(err)

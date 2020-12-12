@@ -135,7 +135,8 @@ func signupHandler(c *gin.Context) {
 		})
 		return
 	}
-	if userCreator.TemporaryAdmin {
+	if userCreator.TemporaryAdmin { // Deletes the user
+		removeSess(sess.SessionID)
 		user.DeleteUser(userCreator.UUID)
 	}
 	c.JSON(200, signupRes{

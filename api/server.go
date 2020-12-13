@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Aapeli123/wilhelmiina/schedule"
 	"github.com/Aapeli123/wilhelmiina/user"
@@ -16,9 +17,14 @@ import (
 // StartServer starts the http server which will serve the api
 func StartServer() {
 	r := gin.Default()
-
+	c := cors.New(cors.Config{
+		AllowOriginFunc:  func(origin string) bool { return true },
+		AllowAllOrigins:  false,
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
 	// Allow Cors from anywhere:
-	r.Use(cors.Default())
+	r.Use(c)
 
 	r.GET("/cookies", func(c *gin.Context) {
 		fmt.Println(c.Cookie("SID"))

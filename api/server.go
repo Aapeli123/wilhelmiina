@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Aapeli123/wilhelmiina/schedule"
@@ -19,6 +20,10 @@ func StartServer() {
 	// Allow Cors from anywhere:
 	r.Use(cors.Default())
 
+	r.GET("/cookies", func(c *gin.Context) {
+		fmt.Println(c.Cookie("SID"))
+	})
+
 	r.GET("/ws", websocketHandle)
 
 	r.GET("/subjects", getSubjectsHandler)
@@ -29,7 +34,7 @@ func StartServer() {
 	r.POST("/seasons/create")
 
 	r.POST("/schedule", scheduleHandler)
-	r.POST("/schedule/:seasonid", getScheduleForSeasonHandler)
+	r.GET("/schedule/:seasonid", getScheduleForSeasonHandler)
 
 	r.GET("/groups/:season", getGroupsForSeasonHandler)
 	r.GET("/group/:id", getGroupHandler)
@@ -40,6 +45,7 @@ func StartServer() {
 
 	r.POST("/auth/login", loginHandler)
 	r.POST("/auth/adduser", signupHandler)
+	r.GET("/auth/logout", logoutHandler)
 
 	r.POST("/messages/send", sendMessageHandler)
 	r.POST("/messages/getThread", getThreadHandler)
@@ -63,21 +69,28 @@ type websocketRes struct {
 
 func scheduleHandler(c *gin.Context) {
 	type scheduleReq struct {
-		SID        string
 		ScheduleID string
 	}
 	var req scheduleReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
 		return
 	}
-	sess, err := getSession(req.SID)
+	sid, err := c.Cookie("SID")
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	sess, err := getSession(sid)
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -85,7 +98,7 @@ func scheduleHandler(c *gin.Context) {
 	}
 	userSchedule, err := schedule.GetSchedule(req.ScheduleID)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -93,7 +106,7 @@ func scheduleHandler(c *gin.Context) {
 	}
 	user, err := user.GetUser(sess.UserID)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -111,19 +124,15 @@ func scheduleHandler(c *gin.Context) {
 
 func getScheduleForSeasonHandler(c *gin.Context) {
 	seasonID := c.Param("seasonid")
-	type scheduleReq struct {
-		SID string
-	}
-	var req scheduleReq
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	sid, err := c.Cookie("SID")
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
 		return
 	}
-	sess, err := getSession(req.SID)
+	sess, err := getSession(sid)
 	if err != nil {
 		c.AbortWithStatusJSON(404, errRes{
 			Message: err.Error(),
@@ -144,16 +153,8 @@ func getScheduleForSeasonHandler(c *gin.Context) {
 }
 
 func websocketHandle(c *gin.Context) {
-	type wsAuthReq struct {
-		SessionID string
-	}
-	req := wsAuthReq{}
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		return
-	}
-	err = conn.ReadJSON(&req)
 	if err != nil {
 		conn.WriteJSON(websocketRes{
 			Success: false,
@@ -162,7 +163,16 @@ func websocketHandle(c *gin.Context) {
 		conn.Close()
 		return
 	}
-	wsSession, err := addWsSession(conn, req.SessionID)
+	sid, err := c.Cookie("SID")
+	if err != nil {
+		conn.WriteJSON(websocketRes{
+			Success: false,
+			Message: err.Error(),
+		})
+		conn.Close()
+		return
+	}
+	wsSession, err := addWsSession(conn, sid)
 	if err != nil {
 		conn.WriteJSON(websocketRes{
 			Success: false,

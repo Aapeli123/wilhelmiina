@@ -70,7 +70,6 @@ func loginHandler(c *gin.Context) {
 }
 
 type signupReq struct {
-	SID           string
 	RealName      string
 	Username      string
 	Email         string
@@ -92,9 +91,16 @@ func signupHandler(c *gin.Context) {
 		})
 		return
 	}
-
+	sid, err := c.Cookie("SID")
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
 	// Validate creator session and permissions
-	sess, err := getSession(req.SID)
+	sess, err := getSession(sid)
 	if err != nil {
 		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
@@ -154,8 +160,7 @@ type logoutRes struct {
 }
 
 func logoutHandler(c *gin.Context) {
-	var req logoutReq
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	sid, err := c.Cookie("SID")
 	if err != nil {
 		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
@@ -163,7 +168,7 @@ func logoutHandler(c *gin.Context) {
 		})
 		return
 	}
-	removeSess(req.SessionID)
+	removeSess(sid)
 	c.JSON(200, logoutRes{
 		Success: true,
 	})

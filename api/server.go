@@ -6,6 +6,7 @@ import (
 
 	"github.com/Aapeli123/wilhelmiina/schedule"
 	"github.com/Aapeli123/wilhelmiina/user"
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -14,6 +15,9 @@ import (
 // StartServer starts the http server which will serve the api
 func StartServer() {
 	r := gin.Default()
+
+	// Allow Cors from anywhere:
+	r.Use(cors.Default())
 
 	r.GET("/ws", websocketHandle)
 

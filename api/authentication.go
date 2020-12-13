@@ -26,7 +26,7 @@ func loginHandler(c *gin.Context) {
 	var req authReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -34,7 +34,7 @@ func loginHandler(c *gin.Context) {
 	}
 	foundUser, err := user.GetUserByName(req.Username)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -42,14 +42,14 @@ func loginHandler(c *gin.Context) {
 	}
 	succ, err := foundUser.CheckPassword(req.Password)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
 		return
 	}
 	if !succ {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: "Wrong password",
 			Success: false,
 		})
@@ -57,7 +57,7 @@ func loginHandler(c *gin.Context) {
 	}
 	sess, err := addSession(foundUser)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -86,7 +86,7 @@ func signupHandler(c *gin.Context) {
 	var req signupReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -96,7 +96,7 @@ func signupHandler(c *gin.Context) {
 	// Validate creator session and permissions
 	sess, err := getSession(req.SID)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -104,7 +104,7 @@ func signupHandler(c *gin.Context) {
 	}
 	userCreator, err := user.GetUser(sess.UserID)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})
@@ -157,7 +157,7 @@ func logoutHandler(c *gin.Context) {
 	var req logoutReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(404, errRes{
+		c.AbortWithStatusJSON(200, errRes{
 			Message: err.Error(),
 			Success: false,
 		})

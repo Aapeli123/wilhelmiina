@@ -22,6 +22,7 @@ func StartServer() {
 		AllowAllOrigins:  false,
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
+		AllowHeaders:     []string{"content-type", "content-length"},
 	})
 	// Allow Cors from anywhere:
 	r.Use(c)

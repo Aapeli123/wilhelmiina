@@ -63,6 +63,7 @@ func loginHandler(c *gin.Context) {
 		})
 		return
 	}
+	c.SetCookie("SID", sess.SessionID, 0, "/", "", true, true)
 	c.JSON(200, authRes{
 		Success:   true,
 		SessionID: sess.SessionID,

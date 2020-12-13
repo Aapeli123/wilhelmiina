@@ -170,6 +170,7 @@ func logoutHandler(c *gin.Context) {
 		return
 	}
 	removeSess(sid)
+	c.SetCookie("SID", "", 0, "/", "", true, true)
 	c.JSON(200, logoutRes{
 		Success: true,
 	})

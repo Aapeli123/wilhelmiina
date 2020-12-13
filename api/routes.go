@@ -113,7 +113,7 @@ func getCourseHandler(c *gin.Context) {
 }
 
 func getCoursesHandler(c *gin.Context) {
-	courses, err := schedule.LoadSubjects()
+	courses, err := schedule.LoadCourses()
 	if err != nil {
 		c.AbortWithStatusJSON(404, errRes{
 			Message: "Error loading courses: " + err.Error(),

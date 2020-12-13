@@ -54,6 +54,8 @@ func StartServer() {
 	r.POST("/auth/adduser", signupHandler)
 	r.GET("/auth/logout", logoutHandler)
 
+	r.GET("/user", getUserHandler)
+
 	r.POST("/messages/send", sendMessageHandler)
 	r.POST("/messages/getThread", getThreadHandler)
 	r.POST("/messages/getMessage", getMessageHandler)
@@ -72,6 +74,42 @@ var upgrader = websocket.Upgrader{
 type websocketRes struct {
 	Message string
 	Success bool
+}
+
+func getUserHandler(c *gin.Context) {
+	sid, err := c.Cookie("SID")
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	sess, err := getSession(sid)
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	user, err := user.GetUser(sess.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	type userRes struct {
+		Username string
+		UUID     string
+		Fullname string
+	}
+	c.JSON(200, response{
+		Data:    user,
+		Success: true,
+	})
 }
 
 func scheduleHandler(c *gin.Context) {

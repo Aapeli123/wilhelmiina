@@ -61,6 +61,8 @@ func StartServer() {
 	r.POST("/messages/getMessage", getMessageHandler)
 	r.POST("/messages/getThreads", getThreadsHandler)
 
+	r.GET("/admin", isAdminHandler)
+
 	startSessionHandler()
 
 	r.Run(":4000")

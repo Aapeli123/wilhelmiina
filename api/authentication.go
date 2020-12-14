@@ -82,6 +82,38 @@ type signupRes struct {
 	UUID    string
 }
 
+func isAdminHandler(c *gin.Context) {
+	sid, err := c.Cookie("SID")
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	// Validate creator session and permissions
+	sess, err := getSession(sid)
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	u, err := user.GetUser(sess.UserID)
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	c.JSON(200, response{
+		Success: true,
+		Data:    (u.PermissionLevel > 2),
+	})
+}
+
 func signupHandler(c *gin.Context) {
 	var req signupReq
 	err := json.NewDecoder(c.Request.Body).Decode(&req)

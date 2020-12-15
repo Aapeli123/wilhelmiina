@@ -55,7 +55,7 @@ func StartServer() {
 	r.GET("/auth/logout", logoutHandler)
 
 	r.GET("/user", getUserHandler)
-
+	r.GET("/validateSession", sessionValidityHandler)
 	r.POST("/messages/send", sendMessageHandler)
 	r.POST("/messages/getThread", getThreadHandler)
 	r.POST("/messages/getMessage", getMessageHandler)

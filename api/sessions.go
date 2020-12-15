@@ -7,6 +7,7 @@ import (
 
 	"github.com/Aapeli123/wilhelmiina/database"
 	"github.com/Aapeli123/wilhelmiina/user"
+	"github.com/gin-gonic/gin"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -100,4 +101,20 @@ func validateSession(SID string) bool {
 		return false
 	}
 	return sess.Expires > time.Now().Unix()
+}
+
+func sessionValidityHandler(c *gin.Context) {
+	sid, err := c.Cookie("SID")
+	if err != nil {
+		c.AbortWithStatusJSON(200, errRes{
+			Message: err.Error(),
+			Success: false,
+		})
+		return
+	}
+	valid := validateSession(sid)
+	c.JSON(200, response{
+		Data:    valid,
+		Success: true,
+	})
 }

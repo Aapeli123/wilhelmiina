@@ -24,6 +24,7 @@ type Message struct {
 	Content   string
 	MessageID string
 	ThreadID  string
+	ReadBy    []string
 }
 
 // Thread represents a thread of messages
@@ -207,6 +208,20 @@ func GetThreadsForUser(userID string) ([]Thread, error) {
 		}
 	}
 	return usersThreads, nil
+}
+
+// ReadMessage marks the message as read in the database
+func ReadMessage(messageID string, userID string) error {
+	msg, err := GetMessage(messageID)
+	if err != nil {
+		return err
+	}
+	msg.ReadBy = append(msg.ReadBy, userID)
+	filter := bson.M{
+		"messageid": messageID,
+	}
+	database.DbClient.Database("test").Collection("messages").FindOneAndReplace(context.TODO(), filter, msg)
+	return nil
 }
 
 func doesContainUser(userID string, thread Thread) bool {

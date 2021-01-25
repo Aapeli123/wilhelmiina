@@ -64,6 +64,26 @@ func sessionHandler(ticker *time.Ticker) {
 	}
 }
 
+func sessForUser(u user.User) ([]Session, error) {
+	collection := database.DbClient.Database("test").Collection("sessions")
+	filter := bson.M{
+		"userid": u.UUID,
+	}
+	cur, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		if err == mongo.ErrNilCursor {
+			return nil, ErrSessNotFound
+		}
+	}
+	var sessions []Session
+	var sess Session
+	for cur.Next(context.TODO()) {
+		cur.Decode(&sess)
+		sessions = append(sessions, sess)
+	}
+	return sessions, nil
+}
+
 func getSession(SID string) (Session, error) {
 	filter := bson.M{
 		"sessionid": SID,

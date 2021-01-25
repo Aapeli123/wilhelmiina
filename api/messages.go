@@ -53,6 +53,14 @@ func sendMessageHandler(c *gin.Context) {
 	msg := messages.NewMessage(sender.UUID, req.Message, thread.ThreadID)
 
 	err = thread.SendMessage(msg)
+	// TODO Send notification through websocket
+	/* for _, id := range thread.Members {
+		u, _ := user.GetUser(id)
+		sess, _ := sessForUser(u)
+		for _, s := range sess {
+
+		}
+	} */
 	if err != nil {
 		c.AbortWithStatusJSON(500, errRes{Message: err.Error(), Success: false})
 		return

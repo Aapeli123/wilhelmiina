@@ -68,7 +68,7 @@ func DeleteThread(threadID string) {
 
 // SendMessage sends a response message to all members of the thread.
 //
-// Basically saves the message to database and sets the appends its id to the threads messages slice. Saves changes to database
+// Basically saves the message to database and appends its id to the threads messages slice. Saves changes to database
 func (t *Thread) SendMessage(message Message) error {
 	_, err := database.DbClient.Database("test").Collection("messages").InsertOne(context.TODO(), message)
 	if err != nil {
